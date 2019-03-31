@@ -1,0 +1,82 @@
+<script src="simpletest/simpletest.js"></script>
+<script>
+
+// Prototype implementation:
+
+// function isPrototypeOf(prototype, object) {
+//   if (Object.getPrototypeOf(object) === prototype) {
+//     return true;
+//   } else {
+//     return false;
+//   }
+// };
+
+// Thought process:
+  // 1. Check if the prototype of the object is what we want.
+  // 2. If the prototype is not what we want, is it null? If the prototype is null, we've reached the end of the chain and there are no matches.
+  // 3. If it's not what we want, but the prototype is not null, then we can go one level up the chain to see if any matches occur there. This is the recursive case.
+
+function isPrototypeOf(prototypeToCheck, objectToCheck) {
+  var actualPrototype = Object.getPrototypeOf(objectToCheck);
+  
+  if (prototypeToCheck === actualPrototype) {
+    return true;
+  } else if (actualPrototype === null) {
+      return false;
+  } else {
+    return isPrototypeOf(prototypeToCheck, actualPrototype);
+  }
+};
+
+tests({
+  'It should return true if the first argument is a prototype of the second argument.': function() {
+    var dog = {
+      bark: function() {
+        return 'bark';
+      }
+    };
+
+    var myDog = Object.create(dog);    
+    eq(isPrototypeOf(dog, myDog), true);
+  },
+  
+  'It should return false if the first argument is not a prototype of the second argument.': function() {
+    var dog = {
+      bark: function() {
+        return 'bark';
+      }
+    };
+    
+    var cat = {
+      meow: function() {
+        return 'meow';
+      }
+    };
+
+    var myCat = Object.create(cat);
+    eq(isPrototypeOf(dog, myCat), false);
+  },
+  
+  'It should work for any depth of prototypes.': function() {
+    var canine = {
+      howl: function() {
+        return 'awoo'
+      }
+    }
+
+    var dog = Object.create(canine);
+    dog.bark = function() {
+      return 'bark';
+    };
+    
+    var myDog = Object.create(dog);
+    eq(isPrototypeOf(canine, myDog), true);
+  },
+
+  'It should work when the prototype is null.': function() {
+    var empty = Object.create(null);
+    eq(isPrototypeOf(null, empty), true);
+  },
+});
+
+</script>
